@@ -1,5 +1,5 @@
 app:
-  name: 'go-clean-template'
+  name: 'tweety'
   version: '1.0.0'
 
 http:
@@ -7,11 +7,7 @@ http:
 
 logger:
   log_level: 'debug'
-  rollbar_env: 'go-clean-template'
+  rollbar_env: 'tweety'
 
 postgres:
   pool_max: 2
-
-rabbitmq:
-  rpc_server_exchange: 'rpc_server'
-  rpc_client_exchange: 'rpc_client'

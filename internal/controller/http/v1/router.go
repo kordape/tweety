@@ -6,17 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 
-	// Swagger docs.
-	_ "github.com/evrone/go-clean-template/docs"
-	"github.com/evrone/go-clean-template/internal/usecase"
-	"github.com/evrone/go-clean-template/pkg/logger"
+	"github.com/kordape/tweety/internal/usecase"
+	"github.com/kordape/tweety/pkg/logger"
 )
 
 // NewRouter -.
-// Swagger spec:
 // @title       Go Clean Template API
 // @description Using a translation service as an example
 // @version     1.0
@@ -26,10 +21,6 @@ func NewRouter(handler *gin.Engine, l logger.Interface, t usecase.Translation) {
 	// Options
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())
-
-	// Swagger
-	swaggerHandler := ginSwagger.DisablingWrapHandler(swaggerFiles.Handler, "DISABLE_SWAGGER_HTTP_HANDLER")
-	handler.GET("/swagger/*any", swaggerHandler)
 
 	// K8s probe
 	handler.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
