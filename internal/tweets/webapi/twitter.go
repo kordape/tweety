@@ -6,21 +6,19 @@ import (
 	"github.com/kordape/tweety/internal/entity"
 )
 
-// TweetWebAPI -.
-type TweetWebAPI struct {
+type TwitterWebAPI struct {
 	accessKey string
 	secretKey string
 }
 
-// New -.
-func New(accessKey string, secretKey string) *TweetWebAPI {
-	return &TweetWebAPI{
+func New(accessKey string, secretKey string) *TwitterWebAPI {
+	return &TwitterWebAPI{
 		accessKey: accessKey,
 		secretKey: secretKey,
 	}
 }
 
-func (t *TweetWebAPI) FetchTweets(ctx context.Context, pageId string) ([]entity.Tweet, error) {
+func (t *TwitterWebAPI) FetchTweets(ctx context.Context, pageId string) ([]entity.Tweet, error) {
 	// TODO: call twitter api to fetch latest tweets from page with pageId
 	// parse tweets into internal struct
 
