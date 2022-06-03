@@ -8,6 +8,3 @@ http:
 logger:
   log_level: 'debug'
   rollbar_env: 'tweety'
-
-postgres:
-  pool_max: 2
