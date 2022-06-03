@@ -7,7 +7,6 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/ilyakaznacheev/cleanenv v1.2.6
 	github.com/rs/zerolog v1.26.1
-	github.com/g8rswimmer/go-twitter/v2 v2.1.0
 )
 
 require (
@@ -15,7 +14,6 @@ require (
 	github.com/Eun/go-convert v1.2.12 // indirect
 	github.com/Eun/go-doppelgangerreader v0.0.0-20190911075941-30f1527f16b2 // indirect
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
-	github.com/g8rswimmer/go-twitter/v2 v2.1.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

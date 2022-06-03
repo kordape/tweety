@@ -6,17 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/kordape/tweety/internal/usecase"
+	"github.com/kordape/tweety/internal/tweets"
 	"github.com/kordape/tweety/pkg/logger"
 )
 
-// NewRouter -.
-// @title       Go Clean Template API
-// @description Using a translation service as an example
-// @version     1.0
-// @host        localhost:8080
-// @BasePath    /v1
-func NewRouter(handler *gin.Engine, l logger.Interface, t usecase.Tweet) {
+func NewRouter(handler *gin.Engine, l logger.Interface, t tweets.TweetsClassifier) {
 	// Options
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())

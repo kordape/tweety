@@ -2,6 +2,11 @@
 // HTTP response objects if suitable. Each logic group entities in own file.
 package entity
 
+type TweetWithClassification struct {
+	Text string `json:"body"`
+	Fake int    `json:"fake"`
+}
+
 type Tweet struct {
-	Body string
+	Text string
 }

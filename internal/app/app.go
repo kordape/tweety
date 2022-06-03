@@ -10,24 +10,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kordape/tweety/config"
 	v1 "github.com/kordape/tweety/internal/controller/http/v1"
-	"github.com/kordape/tweety/internal/usecase"
-	"github.com/kordape/tweety/internal/usecase/webapi"
+	"github.com/kordape/tweety/internal/tweets"
+	"github.com/kordape/tweety/internal/tweets/webapi"
 	"github.com/kordape/tweety/pkg/httpserver"
 	"github.com/kordape/tweety/pkg/logger"
 )
 
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
-	l := logger.New(cfg.Log.Level)
+	log := logger.New(cfg.Log.Level)
 
 	// Use case
-	tweetUseCase := usecase.New(
-		webapi.New(),
+	tweetsClassifier := tweets.NewClassfier(
+		webapi.New(
+			cfg.TwitterAccessKey,
+			cfg.TwitterSecretKey,
+		),
 	)
 
 	// HTTP Server
 	handler := gin.New()
-	v1.NewRouter(handler, l, tweetUseCase)
+	v1.NewRouter(handler, log, tweetsClassifier)
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 
 	// Waiting signal
@@ -36,13 +39,13 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		l.Info("app - Run - signal: " + s.String())
+		log.Info("app - Run - signal: " + s.String())
 	case err := <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
+		log.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 		// Shutdown
 		err = httpServer.Shutdown()
 		if err != nil {
-			l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
+			log.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 		}
 	}
 }
