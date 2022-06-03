@@ -21,11 +21,6 @@ compose-down: ### Down docker-compose
 	docker-compose down --remove-orphans
 .PHONY: compose-down
 
-run:
-	go mod tidy && go mod download && \
-	GIN_MODE=debug CGO_ENABLED=0 go run ./cmd/app
-.PHONY: run
-
 linter-golangci: ### check by golangci linter
 	golangci-lint run
 .PHONY: linter-golangci
