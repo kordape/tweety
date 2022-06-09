@@ -33,7 +33,7 @@ func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 	r.l.Debug("Received userId, %v", userId, ok)
 
 	if !ok {
-		errorResponse(c, http.StatusBadRequest, "invalid request konjino")
+		errorResponse(c, http.StatusBadRequest, "invalid request")
 
 		return
 	}

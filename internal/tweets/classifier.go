@@ -18,8 +18,8 @@ func NewClassfier(w TwitterWebAPI) *Classifier {
 }
 
 // Classify - classifies if tweets are fake news
-func (classifier *Classifier) Classify(ctx context.Context, pageId string) ([]entity.TweetWithClassification, error) {
-	tweets, err := classifier.webAPI.FetchTweets(ctx, pageId)
+func (classifier *Classifier) Classify(ctx context.Context, userId string) ([]entity.TweetWithClassification, error) {
+	tweets, err := classifier.webAPI.FetchTweets(ctx, userId)
 	if err != nil {
 		return []entity.TweetWithClassification{}, fmt.Errorf("Classifier - Classify - uc.WebApi.FetchTweets: %w", err)
 	}

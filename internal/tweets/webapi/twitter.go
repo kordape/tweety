@@ -28,7 +28,7 @@ func New(accessKey string, secretKey string, bearerToken string) *TwitterWebAPI 
 }
 
 func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string) ([]entity.Tweet, error) {
-	// TODO: call twitter api to fetch latest tweets from page with pageId
+	// TODO: call twitter api to fetch latest tweets from page with userId
 	// http get request to twitter api to fetch tweets
 	// parse response into an array of tweet structs
 	httpClient := http.Client{}

@@ -23,9 +23,9 @@ func TestClassify(t *testing.T) {
 		Text: "tweet",
 	}
 	ctx := context.Background()
-	pageId := "1234"
+	userId := "1234"
 	twitterApiMock := NewMockTwitterWebAPI(t)
-	twitterApiMock.On("FetchTweets", ctx, pageId).Return(
+	twitterApiMock.On("FetchTweets", ctx, userId).Return(
 		[]entity.Tweet{
 			tweet,
 		},
@@ -39,9 +39,9 @@ func TestClassify(t *testing.T) {
 
 func TestClassifyError(t *testing.T) {
 	ctx := context.Background()
-	pageId := "1234"
+	userId := "1234"
 	twitterApiMock := NewMockTwitterWebAPI(t)
-	twitterApiMock.On("FetchTweets", ctx, pageId).Return(
+	twitterApiMock.On("FetchTweets", ctx, userId).Return(
 		[]entity.Tweet{},
 		errors.New("twitter api error"),
 	)
