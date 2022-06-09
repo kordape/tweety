@@ -29,16 +29,16 @@ type classifyResponse struct {
 }
 
 func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
-	pageId, ok := c.Request.URL.Query()["pageId"]
-	r.l.Debug("Received pageId", pageId, ok)
+	userId, ok := c.Request.URL.Query()["userId"]
+	r.l.Debug("Received userId, %v", userId, ok)
 
 	if !ok {
-		errorResponse(c, http.StatusBadRequest, "invalid request")
+		errorResponse(c, http.StatusBadRequest, "invalid request konjino")
 
 		return
 	}
 
-	tweets, err := r.t.Classify(c.Request.Context(), pageId[0])
+	tweets, err := r.t.Classify(c.Request.Context(), userId[0])
 	if err != nil {
 		r.l.Error(err, "http - v1 - classify")
 		errorResponse(c, http.StatusInternalServerError, "internal server error")

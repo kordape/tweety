@@ -5,8 +5,9 @@ services:
     container_name: app
     image: app
     environment:
-      TWITTER_ACCESS_KEY: '1234'
-      TWITTER_SECRET_KEY: '4321'
+      TWITTER_ACCESS_KEY: 'z3oVItcragH493fIUiq4tYHlr'
+      TWITTER_SECRET_KEY: 'EhbtRie424iFulfHbzYEVWJP0Hku6BqDbgfLZ4lwabz4Oz0v8A'
+      TWITTER_BEARER_TOKEN: 'AAAAAAAAAAAAAAAAAAAAAJCwdQEAAAAAUVUPc7n4rDIcuKh%2B3VTh4QEggcE%3Dc5KOibfFoFnVgYrWROdoyCYqEbZqbl6iEcZMK2QIe5l2NFCi1E'
     ports:
       - 8080:8080
 

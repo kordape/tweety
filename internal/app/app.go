@@ -25,6 +25,7 @@ func Run(cfg *config.Config) {
 		webapi.New(
 			cfg.TwitterAccessKey,
 			cfg.TwitterSecretKey,
+			cfg.TwitterBearerToken,
 		),
 	)
 
