@@ -23,8 +23,6 @@ func Run(cfg *config.Config) {
 	// Use case
 	tweetsClassifier := tweets.NewClassfier(
 		webapi.New(
-			cfg.TwitterAccessKey,
-			cfg.TwitterSecretKey,
 			cfg.TwitterBearerToken,
 		),
 	)

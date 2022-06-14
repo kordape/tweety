@@ -2,15 +2,14 @@
 // HTTP response objects if suitable. Each logic group entities in own file.
 package entity
 
-import "time"
-
 type TweetWithClassification struct {
-	Text string `json:"body"`
-	Fake int    `json:"fake"`
+	Text      string `json:"body"`
+	Fake      int    `json:"fake"`
+	CreatedAt string `json:"created_at"`
 }
 
 type Tweet struct {
-	CreatedAt time.Time `json:"created_at"`
-	Id        string    `json:"id"`
-	Text      string    `json:"text"`
+	CreatedAt string `json:"created_at"`
+	Id        string `json:"id"`
+	Text      string `json:"text"`
 }

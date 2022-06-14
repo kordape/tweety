@@ -7,6 +7,8 @@ import (
 	"github.com/kordape/tweety/internal/entity"
 	"io/ioutil"
 	"net/http"
+	"strings"
+	"time"
 )
 
 const (
@@ -14,40 +16,47 @@ const (
 )
 
 type TwitterWebAPI struct {
-	accessKey   string
-	secretKey   string
 	bearerToken string
 }
 
-func New(accessKey string, secretKey string, bearerToken string) *TwitterWebAPI {
+func New(bearerToken string) *TwitterWebAPI {
 	return &TwitterWebAPI{
-		accessKey:   accessKey,
-		secretKey:   secretKey,
 		bearerToken: bearerToken,
 	}
 }
 
-func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string) ([]entity.Tweet, error) {
-	// TODO: call twitter api to fetch latest tweets from page with userId
+func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResults int, from *time.Time, to *time.Time) ([]entity.Tweet, error) {
 	// http get request to twitter api to fetch tweets
 	// parse response into an array of tweet structs
+	baseUrl := fmt.Sprintf(getUsersTweetsUrl, userId)
+	var queryParams []string
+	// max_results query param for setting the number of tweets to be returned: min=5 max =100
+	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", maxResults))
+	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
+	if from != nil {
+		tmp := *from
+		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", tmp.Format(time.RFC3339)))
+	}
+	if to != nil {
+		tmp := *to
+		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", tmp.Format(time.RFC3339)))
+	}
+	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
 	httpClient := http.Client{}
-	// max_results query param for setting the number of tweets to be returned:
-	// https://www.postman.com/twitter/workspace/twitter-s-public-workspace/request/9956214-83da6843-c971-4d26-b2f8-07e922a7e285
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf(getUsersTweetsUrl, userId), nil)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.bearerToken))
 	resp, err := httpClient.Do(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error doing request: %w", err)
 	}
 
 	defer resp.Body.Close()
 	response, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error reading response: %w", err)
 	}
 
 	var tweeterResponse getUserTweetsResponse
