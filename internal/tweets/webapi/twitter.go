@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+// testing path
+// http://localhost:8080/v1/tweets/classify?userId=1277254376&maxResults=90&startTime=2022-01-12&endTime=2022-06-15
+
 const (
 	getUsersTweetsUrl = "https://api.twitter.com/2/users/%s/tweets/"
 )
@@ -25,20 +28,21 @@ func New(bearerToken string) *TwitterWebAPI {
 	}
 }
 
-func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResults int, from *time.Time, to *time.Time) ([]entity.Tweet, error) {
-	// http get request to twitter api to fetch tweets
-	// parse response into an array of tweet structs
+func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResults int, startTime, endTime *time.Time) ([]entity.Tweet, error) {
+	//TODO: add corresponding error messages
+	// refactor and optimise code additionally
+
 	baseUrl := fmt.Sprintf(getUsersTweetsUrl, userId)
 	var queryParams []string
 	// max_results query param for setting the number of tweets to be returned: min=5 max =100
 	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", maxResults))
 	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
-	if from != nil {
-		tmp := *from
+	if startTime != nil {
+		tmp := *startTime
 		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", tmp.Format(time.RFC3339)))
 	}
-	if to != nil {
-		tmp := *to
+	if endTime != nil {
+		tmp := *endTime
 		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", tmp.Format(time.RFC3339)))
 	}
 	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
@@ -70,6 +74,8 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResul
 
 type getUserTweetsResponse struct {
 	Data []entity.Tweet `json:"data"`
+	// meta data left to enable pagination option in perspective
+	// can be removed if needed
 	Meta struct {
 		ResultCount   int    `json:"result_count"`
 		NextToken     string `json:"next_token"`

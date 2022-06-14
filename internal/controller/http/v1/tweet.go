@@ -33,54 +33,57 @@ type classifyResponse struct {
 }
 
 func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
+	//TODO: add corresponding errorResponse messages
+	// refactor naming
+	// remove debugging code
+
 	userId, ok := c.Request.URL.Query()["userId"]
 	if !ok {
-		errorResponse(c, http.StatusBadRequest, "invalid request, userId is missing")
+		errorResponse(c, http.StatusBadRequest, "invalid request, invalid userId")
 		return
 	}
 	r.l.Debug("Received userId, %v", userId, ok)
 
-	limit := 10
-	var from, to *time.Time
-
-	limitQueryParam, ok := c.Request.URL.Query()["limit"]
+	maxResLimit := 10
+	limitQueryParam, ok := c.Request.URL.Query()["maxResults"]
 	if ok && len(limitQueryParam) > 0 {
-		r.l.Debug("Received numberOfResults, %v", limit, ok)
+		r.l.Debug("Received maxResults, %v", maxResLimit, ok)
 		var err error
-		limit, err = strconv.Atoi(limitQueryParam[0])
+		maxResLimit, err = strconv.Atoi(limitQueryParam[0])
 		if err != nil {
 			errorResponse(c, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		if limit < 5 || limit > 100 {
+		if maxResLimit < 5 || maxResLimit > 100 {
 			errorResponse(c, http.StatusBadRequest, "invalid request")
 			return
 		}
 	}
 
-	fromQueryParams, ok := c.Request.URL.Query()["from"]
+	var startTime, endTime *time.Time
+	fromQueryParams, ok := c.Request.URL.Query()["startTime"]
 	if ok && len(fromQueryParams) > 0 {
-		r.l.Debug("Received from, %v", from, ok)
+		r.l.Debug("Received startTime, %v", startTime, ok)
 		fromParsed, err := time.Parse(dateLayoutISO, fromQueryParams[0])
 		if err != nil {
 			errorResponse(c, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		from = &fromParsed
+		startTime = &fromParsed
 	}
 
-	toQueryParams, ok := c.Request.URL.Query()["to"]
+	toQueryParams, ok := c.Request.URL.Query()["endTime"]
 	if ok && len(toQueryParams) > 0 {
-		r.l.Debug("Received to, %v", to, ok)
+		r.l.Debug("Received endTime, %v", endTime, ok)
 		toParsed, err := time.Parse(dateLayoutISO, toQueryParams[0])
 		if err != nil {
 			errorResponse(c, http.StatusBadRequest, "invalid request")
 			return
 		}
-		to = &toParsed
+		endTime = &toParsed
 	}
 
-	tweets, err := r.t.Classify(c.Request.Context(), userId[0], limit, from, to)
+	tweets, err := r.t.Classify(c.Request.Context(), userId[0], maxResLimit, startTime, endTime)
 	if err != nil {
 		r.l.Error(err, "http - v1 - classify")
 		errorResponse(c, http.StatusInternalServerError, "internal server error")
