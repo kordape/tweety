@@ -3,17 +3,17 @@ package tweets
 
 import (
 	"context"
+	v1 "github.com/kordape/tweety/internal/controller/http/v1"
 	"github.com/kordape/tweety/internal/entity"
-	"time"
 )
 
 // go:generate mockery --name TwitterWebAPI --inpackage --case underscore --filename=./mocks_test.go --disable-version-string
 type (
 	TweetsClassifier interface {
-		Classify(context.Context, string, int, *time.Time, *time.Time) ([]entity.TweetWithClassification, error)
+		Classify(context.Context, v1.ClassifyRequest) ([]entity.TweetWithClassification, error)
 	}
 
 	TwitterWebAPI interface {
-		FetchTweets(context.Context, string, int, *time.Time, *time.Time) ([]entity.Tweet, error)
+		FetchTweets(context.Context, v1.ClassifyRequest) ([]entity.Tweet, error)
 	}
 )
