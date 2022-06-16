@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	dateLayoutISO = "2006-01-02"
+	dateLayoutISO     = "2006-01-02"
+	defaultMaxResults = 10
 )
 
 type tweetsRoutes struct {
@@ -44,17 +45,17 @@ func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 	}
 	r.l.Debug("Received userId, %v", userId, ok)
 
-	maxResLimit := 10
-	limitQueryParam, ok := c.Request.URL.Query()["maxResults"]
-	if ok && len(limitQueryParam) > 0 {
-		r.l.Debug("Received maxResults, %v", maxResLimit, ok)
+	maxResults := defaultMaxResults
+	maxResultsValue, ok := c.Request.URL.Query()["maxResults"]
+	if ok && len(maxResultsValue) > 0 {
+		r.l.Debug("Received maxResults, %v", maxResults, ok)
 		var err error
-		maxResLimit, err = strconv.Atoi(limitQueryParam[0])
+		maxResults, err = strconv.Atoi(maxResultsValue[0])
 		if err != nil {
 			errorResponse(c, http.StatusInternalServerError, "internal server error")
 			return
 		}
-		if maxResLimit < 5 || maxResLimit > 100 {
+		if maxResults < 5 || maxResults > 100 {
 			errorResponse(c, http.StatusBadRequest, "invalid request")
 			return
 		}
@@ -83,7 +84,7 @@ func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 		endTime = &toParsed
 	}
 
-	tweets, err := r.t.Classify(c.Request.Context(), userId[0], maxResLimit, startTime, endTime)
+	tweets, err := r.t.Classify(c.Request.Context(), userId[0], maxResults, startTime, endTime)
 	if err != nil {
 		r.l.Error(err, "http - v1 - classify")
 		errorResponse(c, http.StatusInternalServerError, "internal server error")
