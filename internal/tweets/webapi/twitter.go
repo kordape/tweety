@@ -73,12 +73,14 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResul
 }
 
 type getUserTweetsResponse struct {
-	Data []entity.Tweet `json:"data"`
-	// meta data left to enable pagination option in perspective
-	// can be removed if needed
-	Meta struct {
-		ResultCount   int    `json:"result_count"`
-		NextToken     string `json:"next_token"`
-		PreviousToken string `json:"previous_token"`
-	} `json:"meta"`
+	Data []entity.Tweet         `json:"data"`
+	Meta TweetsResponseMetaData `json:"meta"`
+}
+
+// TweetsResponseMetaData left to enable pagination option in perspective
+// can be removed if needed
+type TweetsResponseMetaData struct {
+	ResultCount   int    `json:"result_count"`
+	NextToken     string `json:"next_token"`
+	PreviousToken string `json:"previous_token"`
 }
