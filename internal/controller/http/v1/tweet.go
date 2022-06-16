@@ -41,14 +41,17 @@ type ClassifyRequest struct {
 	EndTime    string
 }
 
-func parseRequest(request *http.Request, r *tweetsRoutes) (*ClassifyRequest, error) {
+func parseRequest(request *http.Request) (*ClassifyRequest, error) {
 	var classifyRequest ClassifyRequest
+
 	userId, ok := request.URL.Query()["userId"]
 	if !ok {
-		return nil, fmt.Errorf("can't find user")
+		return nil, fmt.Errorf("invalid user id")
 	}
-	//TODO if len !=1
-	classifyRequest.UserId = userId[0]
+	if len(userId) == 1 {
+		classifyRequest.UserId = userId[0]
+	}
+
 	maxResults := defaultMaxResults
 	maxResultsValue, ok := request.URL.Query()["maxResults"]
 	if ok && len(maxResultsValue) > 0 {
@@ -58,40 +61,36 @@ func parseRequest(request *http.Request, r *tweetsRoutes) (*ClassifyRequest, err
 			return nil, fmt.Errorf("error converting string to integer: %w", err)
 		}
 		if maxResults < 5 || maxResults > 100 {
-			//TODO add proper error
-			return nil, fmt.Errorf("...")
+			return nil, fmt.Errorf("invalid max results parameter - can range from 5 to 100")
 		}
 	}
 	classifyRequest.MaxResults = maxResults
-	fromQueryParams, ok := request.URL.Query()["startTime"]
-	if ok && len(fromQueryParams) > 0 {
-		fromParsed, err := time.Parse(dateLayoutISO, fromQueryParams[0])
-		if err != nil {
-			//TODO add proper error
-			return nil, fmt.Errorf("...")
-		}
 
-		classifyRequest.StartTime = fromParsed.Format(time.RFC3339)
+	startTimeQueryParams, ok := request.URL.Query()["startTime"]
+	if ok && len(startTimeQueryParams) > 0 {
+		startTimeParsed, err := time.Parse(dateLayoutISO, startTimeQueryParams[0])
+		if err != nil {
+			return nil, fmt.Errorf("invalid start time parameter")
+		}
+		classifyRequest.StartTime = startTimeParsed.Format(time.RFC3339)
 	}
 
-	toQueryParams, ok := request.URL.Query()["endTime"]
-	if ok && len(toQueryParams) > 0 {
-		toParsed, err := time.Parse(dateLayoutISO, toQueryParams[0])
+	endTimeQueryParams, ok := request.URL.Query()["endTime"]
+	if ok && len(endTimeQueryParams) > 0 {
+		endTimeParsed, err := time.Parse(dateLayoutISO, endTimeQueryParams[0])
 		if err != nil {
-			//TODO add proper error
-			return nil, fmt.Errorf("...")
+			return nil, fmt.Errorf("invalid end time parameter")
 		}
-		classifyRequest.EndTime = toParsed.Format(time.RFC3339)
+		classifyRequest.EndTime = endTimeParsed.Format(time.RFC3339)
+	}
+	if classifyRequest.StartTime > classifyRequest.EndTime {
+		return nil, fmt.Errorf("invalid time parameters - start time after end time")
 	}
 	return &classifyRequest, nil
 }
 
 func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
-	//TODO: add corresponding errorResponse messages
-	// refactor naming
-	// remove debugging code
-
-	cr, err := parseRequest(c.Request, r)
+	cr, err := parseRequest(c.Request)
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, "invalid request")
 		return
@@ -104,6 +103,5 @@ func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 
 		return
 	}
-
 	c.JSON(http.StatusOK, classifyResponse{tweets})
 }
