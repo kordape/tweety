@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kordape/tweety/internal/entity"
+	"time"
 )
 
 type Classifier struct {
@@ -15,6 +16,30 @@ type ClassifyRequest struct {
 	UserId     string
 	StartTime  string
 	EndTime    string
+}
+
+func (cr ClassifyRequest) Validate() error {
+	if cr.MaxResults < 5 || cr.MaxResults > 100 {
+		return fmt.Errorf("invalid max results parameter - can range from 5 to 100")
+	}
+
+	if cr.StartTime != "" && cr.EndTime != "" {
+		start, err := time.Parse(time.RFC3339, cr.StartTime)
+		if err != nil {
+			return fmt.Errorf("error parsing start time: %s", err)
+		}
+
+		end, err := time.Parse(time.RFC3339, cr.EndTime)
+		if err != nil {
+			return fmt.Errorf("error parsing end time: %s", err)
+		}
+
+		if start.After(end) {
+			return fmt.Errorf("start time is after end time")
+		}
+	}
+
+	return nil
 }
 
 func NewClassfier(w TwitterWebAPI) *Classifier {

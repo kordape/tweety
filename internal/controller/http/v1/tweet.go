@@ -43,23 +43,20 @@ func parseRequest(request *http.Request) (*tweets.ClassifyRequest, error) {
 	if !ok {
 		return nil, fmt.Errorf("invalid user id")
 	}
-	if len(userId) == 1 {
-		classifyRequest.UserId = userId[0]
+	if len(userId) != 1 {
+		return nil, fmt.Errorf("invalid user id")
 	}
-
-	maxResults := defaultMaxResults
+	classifyRequest.UserId = userId[0]
+	classifyRequest.MaxResults = defaultMaxResults
 	maxResultsValue, ok := request.URL.Query()["maxResults"]
 	if ok && len(maxResultsValue) > 0 {
 		var err error
-		maxResults, err = strconv.Atoi(maxResultsValue[0])
+		maxResults, err := strconv.Atoi(maxResultsValue[0])
 		if err != nil {
 			return nil, fmt.Errorf("error converting string to integer: %w", err)
 		}
-		if maxResults < 5 || maxResults > 100 {
-			return nil, fmt.Errorf("invalid max results parameter - can range from 5 to 100")
-		}
+		classifyRequest.MaxResults = maxResults
 	}
-	classifyRequest.MaxResults = maxResults
 
 	startTimeQueryParams, ok := request.URL.Query()["startTime"]
 	if ok && len(startTimeQueryParams) > 0 {
@@ -78,14 +75,18 @@ func parseRequest(request *http.Request) (*tweets.ClassifyRequest, error) {
 		}
 		classifyRequest.EndTime = endTimeParsed.Format(time.RFC3339)
 	}
-	if classifyRequest.StartTime > classifyRequest.EndTime {
-		return nil, fmt.Errorf("invalid time parameters - start time after end time")
-	}
+
 	return &classifyRequest, nil
 }
 
 func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 	cr, err := parseRequest(c.Request)
+	if err != nil {
+		errorResponse(c, http.StatusBadRequest, "invalid request")
+		return
+	}
+
+	err = cr.Validate()
 	if err != nil {
 		errorResponse(c, http.StatusBadRequest, "invalid request")
 		return
