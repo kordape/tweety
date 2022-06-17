@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"github.com/kordape/tweety/internal/tweets/webapi"
 	"net/http"
 	"strconv"
 	"time"
@@ -36,8 +37,8 @@ type classifyResponse struct {
 	Tweets []entity.TweetWithClassification `json:"tweets"`
 }
 
-func parseRequest(request *http.Request) (*tweets.ClassifyRequest, error) {
-	var classifyRequest tweets.ClassifyRequest
+func parseRequest(request *http.Request) (*webapi.FetchTweetsRequest, error) {
+	var classifyRequest webapi.FetchTweetsRequest
 
 	userId, ok := request.URL.Query()["userId"]
 	if !ok {

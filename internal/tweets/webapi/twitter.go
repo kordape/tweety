@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kordape/tweety/internal/entity"
-	"github.com/kordape/tweety/internal/tweets"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // testing path
@@ -28,16 +28,47 @@ func New(bearerToken string) *TwitterWebAPI {
 	}
 }
 
-func (t *TwitterWebAPI) FetchTweets(ctx context.Context, classifyRequest tweets.ClassifyRequest) ([]entity.Tweet, error) {
-	baseUrl := fmt.Sprintf(getUsersTweetsUrl, classifyRequest.UserId)
-	var queryParams []string
-	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", classifyRequest.MaxResults))
-	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
-	if classifyRequest.StartTime != "" {
-		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", classifyRequest.StartTime))
+type FetchTweetsRequest struct {
+	MaxResults int
+	UserId     string
+	StartTime  string
+	EndTime    string
+}
+
+func (ftr FetchTweetsRequest) Validate() error {
+	if ftr.MaxResults < 5 || ftr.MaxResults > 100 {
+		return fmt.Errorf("invalid max results parameter - can range from 5 to 100")
 	}
-	if classifyRequest.EndTime != "" {
-		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", classifyRequest.EndTime))
+
+	if ftr.StartTime != "" && ftr.EndTime != "" {
+		start, err := time.Parse(time.RFC3339, ftr.StartTime)
+		if err != nil {
+			return fmt.Errorf("error parsing start time: %s", err)
+		}
+
+		end, err := time.Parse(time.RFC3339, ftr.EndTime)
+		if err != nil {
+			return fmt.Errorf("error parsing end time: %s", err)
+		}
+
+		if start.After(end) {
+			return fmt.Errorf("start time is after end time")
+		}
+	}
+
+	return nil
+}
+
+func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest) ([]entity.Tweet, error) {
+	baseUrl := fmt.Sprintf(getUsersTweetsUrl, ftr.UserId)
+	var queryParams []string
+	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", ftr.MaxResults))
+	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
+	if ftr.StartTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", ftr.StartTime))
+	}
+	if ftr.EndTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", ftr.EndTime))
 	}
 
 	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
