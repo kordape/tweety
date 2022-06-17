@@ -4,11 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/kordape/tweety/internal/entity"
-	"time"
 )
 
 type Classifier struct {
 	webAPI TwitterWebAPI
+}
+
+type ClassifyRequest struct {
+	MaxResults int
+	UserId     string
+	StartTime  string
+	EndTime    string
 }
 
 func NewClassfier(w TwitterWebAPI) *Classifier {
@@ -18,8 +24,8 @@ func NewClassfier(w TwitterWebAPI) *Classifier {
 }
 
 // Classify - classifies if tweets are fake news
-func (classifier *Classifier) Classify(ctx context.Context, userId string, maxResults int, startTime, endTime *time.Time) ([]entity.TweetWithClassification, error) {
-	tweets, err := classifier.webAPI.FetchTweets(ctx, userId, maxResults, startTime, endTime)
+func (classifier *Classifier) Classify(ctx context.Context, cr ClassifyRequest) ([]entity.TweetWithClassification, error) {
+	tweets, err := classifier.webAPI.FetchTweets(ctx, cr)
 	if err != nil {
 		return []entity.TweetWithClassification{}, fmt.Errorf("Classifier - Classify - uc.WebApi.FetchTweets: %w", err)
 	}

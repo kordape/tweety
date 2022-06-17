@@ -2,13 +2,15 @@ package v1
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/kordape/tweety/internal/entity"
-	"github.com/kordape/tweety/internal/tweets"
-	"github.com/kordape/tweety/pkg/logger"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/kordape/tweety/internal/entity"
+	"github.com/kordape/tweety/internal/tweets"
+	"github.com/kordape/tweety/pkg/logger"
 )
 
 const (
@@ -34,15 +36,8 @@ type classifyResponse struct {
 	Tweets []entity.TweetWithClassification `json:"tweets"`
 }
 
-type ClassifyRequest struct {
-	MaxResults int
-	UserId     string
-	StartTime  string
-	EndTime    string
-}
-
-func parseRequest(request *http.Request) (*ClassifyRequest, error) {
-	var classifyRequest ClassifyRequest
+func parseRequest(request *http.Request) (*tweets.ClassifyRequest, error) {
+	var classifyRequest tweets.ClassifyRequest
 
 	userId, ok := request.URL.Query()["userId"]
 	if !ok {

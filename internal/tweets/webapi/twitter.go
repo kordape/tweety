@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kordape/tweety/internal/entity"
+	"github.com/kordape/tweety/internal/tweets"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 // testing path
@@ -28,23 +28,18 @@ func New(bearerToken string) *TwitterWebAPI {
 	}
 }
 
-func (t *TwitterWebAPI) FetchTweets(ctx context.Context, userId string, maxResults int, startTime, endTime *time.Time) ([]entity.Tweet, error) {
-	//TODO: add corresponding error messages
-	// refactor and optimise code additionally
-
-	baseUrl := fmt.Sprintf(getUsersTweetsUrl, userId)
+func (t *TwitterWebAPI) FetchTweets(ctx context.Context, classifyRequest tweets.ClassifyRequest) ([]entity.Tweet, error) {
+	baseUrl := fmt.Sprintf(getUsersTweetsUrl, classifyRequest.UserId)
 	var queryParams []string
-	// max_results query param for setting the number of tweets to be returned: min=5 max =100
-	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", maxResults))
+	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", classifyRequest.MaxResults))
 	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
-	if startTime != nil {
-		tmp := *startTime
-		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", tmp.Format(time.RFC3339)))
+	if classifyRequest.StartTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", classifyRequest.StartTime))
 	}
-	if endTime != nil {
-		tmp := *endTime
-		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", tmp.Format(time.RFC3339)))
+	if classifyRequest.EndTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", classifyRequest.EndTime))
 	}
+
 	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
 	httpClient := http.Client{}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
