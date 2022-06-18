@@ -5,19 +5,19 @@ import (
 	"fmt"
 
 	"github.com/kordape/tweety/internal/entity"
-	"github.com/kordape/tweety/internal/tweets/ml-model"
+	"github.com/kordape/tweety/internal/tweets/predictor"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
 type Classifier struct {
-	webAPI  TwitterWebAPI
-	mlModel MLModel
+	webAPI    TwitterWebAPI
+	predictor Predictor
 }
 
-func NewClassifier(w TwitterWebAPI, m MLModel) *Classifier {
+func NewClassifier(w TwitterWebAPI, p Predictor) *Classifier {
 	return &Classifier{
-		webAPI:  w,
-		mlModel: m,
+		webAPI:    w,
+		predictor: p,
 	}
 }
 
@@ -28,11 +28,11 @@ func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTwee
 		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
 	}
 
-	request := make([]mlmodel.Tweet, 0)
+	request := make([]predictor.Tweet, 0)
 	for _, t := range tweets {
-		request = append(request, mlmodel.Tweet{Tweet: t.Text})
+		request = append(request, predictor.Tweet{Tweet: t.Text})
 	}
-	predictions, err := classifier.mlModel.FakeTweetPredictor(ctx, request)
+	predictions, err := classifier.predictor.PredictAuthenticTweets(ctx, request)
 	if err != nil {
 		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
 	}

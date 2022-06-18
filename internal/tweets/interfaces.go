@@ -4,7 +4,7 @@ package tweets
 import (
 	"context"
 	"github.com/kordape/tweety/internal/entity"
-	model "github.com/kordape/tweety/internal/tweets/ml-model"
+	"github.com/kordape/tweety/internal/tweets/predictor"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
@@ -18,7 +18,7 @@ type (
 		FetchTweets(context.Context, webapi.FetchTweetsRequest) ([]entity.Tweet, error)
 	}
 
-	MLModel interface {
-		FakeTweetPredictor(ctx context.Context, tweets []model.Tweet) (model.Response, error)
+	Predictor interface {
+		PredictAuthenticTweets(ctx context.Context, tweets []predictor.Tweet) (predictor.Response, error)
 	}
 )

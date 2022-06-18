@@ -1,4 +1,4 @@
-package mlmodel
+package predictor
 
 import (
 	"bytes"
@@ -12,12 +12,12 @@ import (
 
 const predictUrl = "http://ml:8080/predict"
 
-type MLModel struct {
+type Predictor struct {
 	httpClient *http.Client
 }
 
-func New() *MLModel {
-	return &MLModel{
+func New() *Predictor {
+	return &Predictor{
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 }
@@ -29,7 +29,7 @@ type Response struct {
 	Prediction []int `json:"prediction"`
 }
 
-func (ml *MLModel) FakeTweetPredictor(ctx context.Context, tweets []Tweet) (Response, error) {
+func (p *Predictor) PredictAuthenticTweets(ctx context.Context, tweets []Tweet) (Response, error) {
 	buf, err := json.Marshal(tweets)
 	if err != nil {
 		return Response{}, fmt.Errorf("error marshalling request body: %w", err)
@@ -41,7 +41,7 @@ func (ml *MLModel) FakeTweetPredictor(ctx context.Context, tweets []Tweet) (Resp
 		return Response{}, fmt.Errorf("error creating http request: %w", err)
 	}
 
-	resp, err := ml.httpClient.Do(request)
+	resp, err := p.httpClient.Do(request)
 	if err != nil {
 		return Response{}, fmt.Errorf("error doing http request: %w", err)
 	}
