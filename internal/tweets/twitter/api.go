@@ -1,14 +1,15 @@
-package webapi
+package twitter
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/kordape/tweety/internal/entity"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/kordape/tweety/internal/entity"
 )
 
 // testing path
@@ -18,15 +19,17 @@ const (
 	getUsersTweetsUrl = "https://api.twitter.com/2/users/%s/tweets/"
 )
 
-type TwitterWebAPI struct {
+type Client struct {
 	httpClient  *http.Client
 	bearerToken string
 }
 
-func New(bearerToken string) *TwitterWebAPI {
-	return &TwitterWebAPI{
+func New(bearerToken string) *Client {
+	return &Client{
 		bearerToken: bearerToken,
-		httpClient:  &http.Client{Timeout: 10 * time.Second},
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 }
 
@@ -37,18 +40,37 @@ type FetchTweetsRequest struct {
 	EndTime    string
 }
 
-func (ftr FetchTweetsRequest) Validate() error {
-	if ftr.MaxResults < 5 || ftr.MaxResults > 100 {
+type getUserTweetsResponse struct {
+	Data []Tweet  `json:"data"`
+	Meta Metadata `json:"meta"`
+}
+
+type Tweet struct {
+	CreatedAt string `json:"created_at"`
+	Id        string `json:"id"`
+	Text      string `json:"text"`
+}
+
+// metaData left to enable pagination option in perspective
+// can be removed if needed
+type Metadata struct {
+	ResultCount   int    `json:"result_count"`
+	NextToken     string `json:"next_token"`
+	PreviousToken string `json:"previous_token"`
+}
+
+func (request FetchTweetsRequest) Validate() error {
+	if request.MaxResults < 5 || request.MaxResults > 100 {
 		return fmt.Errorf("invalid max results parameter - can range from 5 to 100")
 	}
 
-	if ftr.StartTime != "" && ftr.EndTime != "" {
-		start, err := time.Parse(time.RFC3339, ftr.StartTime)
+	if request.StartTime != "" && request.EndTime != "" {
+		start, err := time.Parse(time.RFC3339, request.StartTime)
 		if err != nil {
 			return fmt.Errorf("error parsing start time: %s", err)
 		}
 
-		end, err := time.Parse(time.RFC3339, ftr.EndTime)
+		end, err := time.Parse(time.RFC3339, request.EndTime)
 		if err != nil {
 			return fmt.Errorf("error parsing end time: %s", err)
 		}
@@ -61,7 +83,7 @@ func (ftr FetchTweetsRequest) Validate() error {
 	return nil
 }
 
-func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest) ([]entity.Tweet, error) {
+func (client *Client) FetchTweets(ctx context.Context, ftr FetchTweetsRequest) ([]entity.Tweet, error) {
 	baseUrl := fmt.Sprintf(getUsersTweetsUrl, ftr.UserId)
 	var queryParams []string
 	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", ftr.MaxResults))
@@ -78,8 +100,8 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
-	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.bearerToken))
-	resp, err := t.httpClient.Do(request)
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", client.bearerToken))
+	resp, err := client.httpClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("error doing request: %w", err)
 	}
@@ -96,18 +118,14 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest)
 		return nil, err
 	}
 
-	return tweeterResponse.Data, nil
-}
+	result := make([]entity.Tweet, len(tweeterResponse.Data))
+	for i, tweet := range tweeterResponse.Data {
+		result[i] = entity.Tweet{
+			Id:        tweet.Id,
+			Text:      tweet.Text,
+			CreatedAt: tweet.CreatedAt,
+		}
+	}
 
-type getUserTweetsResponse struct {
-	Data []entity.Tweet         `json:"data"`
-	Meta TweetsResponseMetaData `json:"meta"`
-}
-
-// TweetsResponseMetaData left to enable pagination option in perspective
-// can be removed if needed
-type TweetsResponseMetaData struct {
-	ResultCount   int    `json:"result_count"`
-	NextToken     string `json:"next_token"`
-	PreviousToken string `json:"previous_token"`
+	return result, nil
 }
