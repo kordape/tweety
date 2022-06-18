@@ -31,7 +31,7 @@ func TestClassify(t *testing.T) {
 		},
 		nil,
 	)
-	classifier := NewClassfier(twitterApiMock)
+	classifier := NewClassifier(twitterApiMock)
 	classifiedTweets, err := classifier.Classify(ctx, "1234")
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(classifiedTweets))
@@ -45,7 +45,7 @@ func TestClassifyError(t *testing.T) {
 		[]entity.Tweet{},
 		errors.New("twitter api error"),
 	)
-	classifier := NewClassfier(twitterApiMock)
+	classifier := NewClassifier(twitterApiMock)
 	_, err := classifier.Classify(ctx, "1234")
 	assert.Error(t, err)
 }

@@ -4,6 +4,7 @@ package tweets
 import (
 	"context"
 	"github.com/kordape/tweety/internal/entity"
+	model "github.com/kordape/tweety/internal/tweets/ml-model"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
@@ -15,5 +16,9 @@ type (
 
 	TwitterWebAPI interface {
 		FetchTweets(context.Context, webapi.FetchTweetsRequest) ([]entity.Tweet, error)
+	}
+
+	MLModel interface {
+		FakeTweetPredictor(ctx context.Context, tweets []model.Tweet) (model.FakeTweetPredictorResponse, error)
 	}
 )

@@ -95,7 +95,7 @@ func (r *tweetsRoutes) classifyHandler(c *gin.Context) {
 
 	tweets, err := r.t.Classify(c.Request.Context(), *cr)
 	if err != nil {
-		r.l.Error(err, "http - v1 - classify")
+		r.l.Error(err, "")
 		errorResponse(c, http.StatusInternalServerError, "internal server error")
 
 		return

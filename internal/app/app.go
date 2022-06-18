@@ -3,6 +3,7 @@ package app
 
 import (
 	"fmt"
+	ml_model "github.com/kordape/tweety/internal/tweets/ml-model"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,10 +22,11 @@ func Run(cfg *config.Config) {
 	log := logger.New(cfg.Log.Level)
 
 	// Use case
-	tweetsClassifier := tweets.NewClassfier(
+	tweetsClassifier := tweets.NewClassifier(
 		webapi.New(
 			cfg.TwitterBearerToken,
 		),
+		ml_model.New(),
 	)
 
 	// HTTP Server

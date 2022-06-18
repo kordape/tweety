@@ -19,12 +19,14 @@ const (
 )
 
 type TwitterWebAPI struct {
+	httpClient  *http.Client
 	bearerToken string
 }
 
 func New(bearerToken string) *TwitterWebAPI {
 	return &TwitterWebAPI{
 		bearerToken: bearerToken,
+		httpClient:  &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
@@ -72,13 +74,12 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest)
 	}
 
 	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
-	httpClient := http.Client{}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.bearerToken))
-	resp, err := httpClient.Do(request)
+	resp, err := t.httpClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("error doing request: %w", err)
 	}
