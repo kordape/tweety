@@ -1,4 +1,4 @@
-package ml_model
+package mlmodel
 
 import (
 	"bytes"

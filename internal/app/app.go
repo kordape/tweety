@@ -3,7 +3,6 @@ package app
 
 import (
 	"fmt"
-	ml_model "github.com/kordape/tweety/internal/tweets/ml-model"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,6 +11,7 @@ import (
 	"github.com/kordape/tweety/config"
 	v1 "github.com/kordape/tweety/internal/controller/http/v1"
 	"github.com/kordape/tweety/internal/tweets"
+	"github.com/kordape/tweety/internal/tweets/ml-model"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 	"github.com/kordape/tweety/pkg/httpserver"
 	"github.com/kordape/tweety/pkg/logger"
@@ -26,7 +26,7 @@ func Run(cfg *config.Config) {
 		webapi.New(
 			cfg.TwitterBearerToken,
 		),
-		ml_model.New(),
+		mlmodel.New(),
 	)
 
 	// HTTP Server

@@ -3,8 +3,9 @@ package tweets
 import (
 	"context"
 	"fmt"
+
 	"github.com/kordape/tweety/internal/entity"
-	ml_model "github.com/kordape/tweety/internal/tweets/ml-model"
+	"github.com/kordape/tweety/internal/tweets/ml-model"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
@@ -27,9 +28,9 @@ func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTwee
 		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
 	}
 
-	request := make([]ml_model.Tweet, 0)
+	request := make([]mlmodel.Tweet, 0)
 	for _, t := range tweets {
-		request = append(request, ml_model.Tweet{Tweet: t.Text})
+		request = append(request, mlmodel.Tweet{Tweet: t.Text})
 	}
 	predictions, err := classifier.mlModel.FakeTweetPredictor(ctx, request)
 	if err != nil {
