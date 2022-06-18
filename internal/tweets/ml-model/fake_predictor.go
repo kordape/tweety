@@ -25,7 +25,7 @@ func New() *MLModel {
 type Tweet struct {
 	Tweet string `json:"tweet"`
 }
-type FakeTweetPredictorResponse struct {
+type Response struct {
 	Prediction []int `json:"prediction"`
 }
 
