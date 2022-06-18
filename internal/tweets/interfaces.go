@@ -19,6 +19,6 @@ type (
 	}
 
 	MLModel interface {
-		FakeTweetPredictor(ctx context.Context, tweets []model.Tweet) (model.FakeTweetPredictorResponse, error)
+		FakeTweetPredictor(ctx context.Context, tweets []model.Tweet) (model.Response, error)
 	}
 )
