@@ -22,7 +22,19 @@ func NewClassifier(w TwitterWebAPI, p Predictor) *Classifier {
 }
 
 // Classify - classifies if tweets are fake news
-func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTweetsRequest) ([]entity.TweetWithClassification, error) {
+func (classifier *Classifier) Classify(ctx context.Context, cr ClassificationRequest) ([]entity.TweetWithClassification, error) {
+	ftr := webapi.FetchTweetsRequest{
+		MaxResults: cr.MaxResults,
+		UserId:     cr.UserId,
+		StartTime:  cr.StartTime,
+		EndTime:    cr.EndTime,
+	}
+
+	err := ftr.Validate()
+	if err != nil {
+		return []entity.TweetWithClassification{}, fmt.Errorf("validation of FetchTweetsRequest failed: %w", err)
+	}
+
 	tweets, err := classifier.webAPI.FetchTweets(ctx, ftr)
 	if err != nil {
 		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
@@ -34,7 +46,7 @@ func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTwee
 	}
 	predictions, err := classifier.predictor.PredictFakeTweets(ctx, request)
 	if err != nil {
-		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
+		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - failed to predict fake tweets: %w", err)
 	}
 
 	if len(predictions.Prediction) != len(tweets) {
@@ -51,4 +63,11 @@ func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTwee
 	}
 
 	return tweetsWithClassification, nil
+}
+
+type ClassificationRequest struct {
+	MaxResults int
+	UserId     string
+	StartTime  string
+	EndTime    string
 }

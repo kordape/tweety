@@ -11,7 +11,7 @@ import (
 // go:generate mockery --name TwitterWebAPI --inpackage --case underscore --filename=./mocks_test.go --disable-version-string
 type (
 	TweetsClassifier interface {
-		Classify(context.Context, webapi.FetchTweetsRequest) ([]entity.TweetWithClassification, error)
+		Classify(context.Context, ClassificationRequest) ([]entity.TweetWithClassification, error)
 	}
 
 	TwitterWebAPI interface {
