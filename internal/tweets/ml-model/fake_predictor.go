@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const predictUrl = "http://ml:8081/predict"
+const predictUrl = "http://ml:8080/predict"
 
 type MLModel struct {
 	httpClient *http.Client
@@ -36,6 +36,7 @@ func (ml *MLModel) FakeTweetPredictor(ctx context.Context, tweets []Tweet) (Fake
 	}
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, predictUrl, bytes.NewBuffer(buf))
+	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		return FakeTweetPredictorResponse{}, fmt.Errorf("error creating http request: %w", err)
 	}
