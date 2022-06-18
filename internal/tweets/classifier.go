@@ -32,7 +32,7 @@ func (classifier *Classifier) Classify(ctx context.Context, ftr webapi.FetchTwee
 	for _, t := range tweets {
 		request = append(request, predictor.Tweet{Tweet: t.Text})
 	}
-	predictions, err := classifier.predictor.PredictAuthenticTweets(ctx, request)
+	predictions, err := classifier.predictor.PredictFakeTweets(ctx, request)
 	if err != nil {
 		return []entity.TweetWithClassification{}, fmt.Errorf("classifier - classify - uc.WebApi.FetchTweets: %w", err)
 	}

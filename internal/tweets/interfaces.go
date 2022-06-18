@@ -19,6 +19,6 @@ type (
 	}
 
 	Predictor interface {
-		PredictAuthenticTweets(ctx context.Context, tweets []predictor.Tweet) (predictor.Response, error)
+		PredictFakeTweets(ctx context.Context, tweets []predictor.Tweet) (predictor.Response, error)
 	}
 )

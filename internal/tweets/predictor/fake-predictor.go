@@ -29,7 +29,7 @@ type Response struct {
 	Prediction []int `json:"prediction"`
 }
 
-func (p *Predictor) PredictAuthenticTweets(ctx context.Context, tweets []Tweet) (Response, error) {
+func (p *Predictor) PredictFakeTweets(ctx context.Context, tweets []Tweet) (Response, error) {
 	buf, err := json.Marshal(tweets)
 	if err != nil {
 		return Response{}, fmt.Errorf("error marshalling request body: %w", err)
