@@ -2,7 +2,6 @@ package v1
 
 import (
 	"fmt"
-	"github.com/kordape/tweety/internal/tweets/webapi"
 	"net/http"
 	"strconv"
 	"time"
@@ -37,10 +36,11 @@ type classifyResponse struct {
 	Tweets []entity.TweetWithClassification `json:"tweets"`
 }
 
-func parseRequest(request *http.Request) (*webapi.FetchTweetsRequest, error) {
-	var classifyRequest webapi.FetchTweetsRequest
+func parseRequest(request *http.Request) (*tweets.ClassifyRequest, error) {
+	var classifyRequest tweets.ClassifyRequest
+	query := request.URL.Query()
 
-	userId, ok := request.URL.Query()["userId"]
+	userId, ok := query["userId"]
 	if !ok {
 		return nil, fmt.Errorf("invalid user id")
 	}
@@ -49,7 +49,7 @@ func parseRequest(request *http.Request) (*webapi.FetchTweetsRequest, error) {
 	}
 	classifyRequest.UserId = userId[0]
 	classifyRequest.MaxResults = defaultMaxResults
-	maxResultsValue, ok := request.URL.Query()["maxResults"]
+	maxResultsValue, ok := query["maxResults"]
 	if ok && len(maxResultsValue) > 0 {
 		var err error
 		maxResults, err := strconv.Atoi(maxResultsValue[0])
@@ -59,7 +59,7 @@ func parseRequest(request *http.Request) (*webapi.FetchTweetsRequest, error) {
 		classifyRequest.MaxResults = maxResults
 	}
 
-	startTimeQueryParams, ok := request.URL.Query()["startTime"]
+	startTimeQueryParams, ok := query["startTime"]
 	if ok && len(startTimeQueryParams) > 0 {
 		startTimeParsed, err := time.Parse(dateLayoutISO, startTimeQueryParams[0])
 		if err != nil {
@@ -68,7 +68,7 @@ func parseRequest(request *http.Request) (*webapi.FetchTweetsRequest, error) {
 		classifyRequest.StartTime = startTimeParsed.Format(time.RFC3339)
 	}
 
-	endTimeQueryParams, ok := request.URL.Query()["endTime"]
+	endTimeQueryParams, ok := query["endTime"]
 	if ok && len(endTimeQueryParams) > 0 {
 		endTimeParsed, err := time.Parse(dateLayoutISO, endTimeQueryParams[0])
 		if err != nil {
