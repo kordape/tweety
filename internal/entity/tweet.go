@@ -9,7 +9,7 @@ type TweetWithClassification struct {
 }
 
 type Tweet struct {
-	CreatedAt string `json:"created_at"`
 	Id        string `json:"id"`
 	Text      string `json:"text"`
+	CreatedAt string `json:"created_at"`
 }

@@ -90,23 +90,38 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest)
 		return nil, fmt.Errorf("error reading response: %w", err)
 	}
 
-	var tweeterResponse getUserTweetsResponse
-	err = json.Unmarshal(response, &tweeterResponse)
+	var gtr getTweetsResponse
+	err = json.Unmarshal(response, &gtr)
 	if err != nil {
 		return nil, err
 	}
 
-	return tweeterResponse.Data, nil
+	tweets := make([]entity.Tweet, 0)
+	for _, t := range gtr.Data {
+		tweets = append(tweets, entity.Tweet{
+			Id:        t.Id,
+			Text:      t.Text,
+			CreatedAt: t.CreatedAt,
+		})
+	}
+
+	return tweets, nil
 }
 
-type getUserTweetsResponse struct {
-	Data []entity.Tweet         `json:"data"`
-	Meta TweetsResponseMetaData `json:"meta"`
+type getTweetsResponse struct {
+	Data []tweet `json:"data"`
+	Meta meta    `json:"meta"`
 }
 
-// TweetsResponseMetaData left to enable pagination option in perspective
+type tweet struct {
+	Id        string `json:"id"`
+	Text      string `json:"text"`
+	CreatedAt string `json:"created_at"`
+}
+
+// meta left to enable pagination option in perspective
 // can be removed if needed
-type TweetsResponseMetaData struct {
+type meta struct {
 	ResultCount   int    `json:"result_count"`
 	NextToken     string `json:"next_token"`
 	PreviousToken string `json:"previous_token"`
