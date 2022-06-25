@@ -11,6 +11,7 @@ import (
 	"github.com/kordape/tweety/config"
 	v1 "github.com/kordape/tweety/internal/controller/http/v1"
 	"github.com/kordape/tweety/internal/tweets"
+	"github.com/kordape/tweety/internal/tweets/predictor"
 	"github.com/kordape/tweety/internal/tweets/webapi"
 	"github.com/kordape/tweety/pkg/httpserver"
 	"github.com/kordape/tweety/pkg/logger"
@@ -21,11 +22,11 @@ func Run(cfg *config.Config) {
 	log := logger.New(cfg.Log.Level)
 
 	// Use case
-	tweetsClassifier := tweets.NewClassfier(
+	tweetsClassifier := tweets.NewClassifier(
 		webapi.New(
-			cfg.TwitterAccessKey,
-			cfg.TwitterSecretKey,
+			cfg.TwitterBearerToken,
 		),
+		predictor.New(),
 	)
 
 	// HTTP Server

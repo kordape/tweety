@@ -3,17 +3,22 @@ package tweets
 
 import (
 	"context"
-
 	"github.com/kordape/tweety/internal/entity"
+	"github.com/kordape/tweety/internal/tweets/predictor"
+	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
-// go:generate mockery --name TwitterWebAPI --inpackage --case underscore --filename=./mocks_test.go --disable-version-string
+//go:generate mockery --all --inpackage --case underscore --disable-version-string
 type (
 	TweetsClassifier interface {
-		Classify(context.Context, string) ([]entity.TweetWithClassification, error)
+		Classify(context.Context, ClassificationRequest) ([]entity.TweetWithClassification, error)
 	}
 
 	TwitterWebAPI interface {
-		FetchTweets(context.Context, string) ([]entity.Tweet, error)
+		FetchTweets(context.Context, webapi.FetchTweetsRequest) ([]entity.Tweet, error)
+	}
+
+	Predictor interface {
+		PredictFakeTweets(ctx context.Context, tweets []predictor.Tweet) (predictor.Response, error)
 	}
 )

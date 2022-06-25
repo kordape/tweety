@@ -5,10 +5,18 @@ services:
     container_name: app
     image: app
     environment:
-      TWITTER_ACCESS_KEY: '1234'
-      TWITTER_SECRET_KEY: '4321'
+      TWITTER_BEARER_TOKEN: 'AAAAAAAAAAAAAAAAAAAAAJCwdQEAAAAAUVUPc7n4rDIcuKh%2B3VTh4QEggcE%3Dc5KOibfFoFnVgYrWROdoyCYqEbZqbl6iEcZMK2QIe5l2NFCi1E'
     ports:
       - 8080:8080
+    links:
+      - "ml:ml"
+
+
+  ml:
+    container_name: ml
+    image: ml
+    ports:
+      - 8081:8080
 
   integration:
     build:
