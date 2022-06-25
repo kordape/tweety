@@ -62,23 +62,17 @@ func (ftr FetchTweetsRequest) Validate() error {
 }
 
 func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest) ([]entity.Tweet, error) {
-	baseUrl := fmt.Sprintf(getUsersTweetsUrl, ftr.UserId)
-	var queryParams []string
-	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", ftr.MaxResults))
-	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
-	if ftr.StartTime != "" {
-		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", ftr.StartTime))
-	}
-	if ftr.EndTime != "" {
-		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", ftr.EndTime))
-	}
-
-	url := fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fetchTweetsUrl(fmt.Sprintf(getUsersTweetsUrl, ftr.UserId), ftr),
+		nil,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.bearerToken))
+
 	resp, err := t.httpClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("error doing request: %w", err)
@@ -106,6 +100,20 @@ func (t *TwitterWebAPI) FetchTweets(ctx context.Context, ftr FetchTweetsRequest)
 	}
 
 	return tweets, nil
+}
+
+func fetchTweetsUrl(baseUrl string, ftr FetchTweetsRequest) string {
+	var queryParams []string
+	queryParams = append(queryParams, fmt.Sprintf("max_results=%d", ftr.MaxResults))
+	queryParams = append(queryParams, "tweet.fields=id,text,created_at")
+	if ftr.StartTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("start_time=%s", ftr.StartTime))
+	}
+	if ftr.EndTime != "" {
+		queryParams = append(queryParams, fmt.Sprintf("end_time=%s", ftr.EndTime))
+	}
+
+	return fmt.Sprintf("%s?%s", baseUrl, strings.Join(queryParams, "&"))
 }
 
 type getTweetsResponse struct {
