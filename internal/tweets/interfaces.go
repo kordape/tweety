@@ -8,7 +8,7 @@ import (
 	"github.com/kordape/tweety/internal/tweets/webapi"
 )
 
-// go:generate mockery --name TwitterWebAPI --inpackage --case underscore --filename=./mocks_test.go --disable-version-string
+//go:generate mockery --all --inpackage --case underscore --disable-version-string
 type (
 	TweetsClassifier interface {
 		Classify(context.Context, ClassificationRequest) ([]entity.TweetWithClassification, error)
